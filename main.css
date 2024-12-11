@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap');
+
+
+.logoSize {
+    max-width: 100%;
+}
+
+.mainTitle {
+    text-align: center; /* 텍스트 중앙 정렬 */
+    margin:0px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 400; /* 원하는 굵기 설정 (200 ~ 700) */
+    font-size: 100%; /* 폰트 크기 설정 */
+    color: #000; /* 텍스트 색상 */
+
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+
+.icons {
+    display: flex;
+    align-items: center; /* 가로 중앙 정렬 */
+    justify-content: center;
+  }
+
+.icons img {
+    width: 40px; /* 이미지 너비 조정 */
+    height: auto; /* 원본 비율 유지 */
+    margin: 10px 0; /* 이미지 사이에 여백 추가 */
+    margin-left: 10px;
+    margin-right: 10px;
+}
