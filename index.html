@@ -1,36 +1,769 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="main.css">
+    <title>EVER BLACK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+            background: #000;
+            color: #fff;
+            overflow-x: hidden;
+            cursor: none;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Logo Section */
+        .logo-section {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: all 1s cubic-bezier(0.76, 0, 0.24, 1);
+            scroll-snap-align: start;
+        }
+
+        .logo-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            transition: all 1s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+
+        /* Logo with Image */
+        .logo {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 1.5s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+
+        .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: invert(1);  /* 흰색으로 변환 (검은 배경에 맞게) */
+            transition: opacity 1.2s cubic-bezier(0.76, 0, 0.24, 1),
+                        transform 1.2s cubic-bezier(0.76, 0, 0.24, 1),
+                        filter 0.3s ease;
+        }
+
+        .logo-text {
+            position: absolute;
+            opacity: 0;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 0.2rem;
+            transform: scale(0.8);
+            transition: all 1s cubic-bezier(0.76, 0, 0.24, 1);
+            z-index: 10;
+            color: #fff;
+            white-space: nowrap;  /* 줄바꿈 방지 */
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            animation: fadeInUp 1s 2s forwards, bounce 2s 3s infinite;
+            z-index: 101;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scroll-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+            background: #fff;
+            animation: scrollDown 2s infinite;
+        }
+
+        @keyframes scrollDown {
+            0% { transform: translateY(-20px); }
+            100% { transform: translateY(80px); }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(-10px);
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* Main Content */
+        .content {
+            position: relative;
+            z-index: 1;
+            padding-top: 200vh;
+            background: #000;
+        }
+
+        .ever-black-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding: 5rem 2rem;
+            scroll-snap-align: start;
+        }
+
+        .ever-black-title {
+            font-size: clamp(4rem, 15vw, 12rem);
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1s cubic-bezier(0.76, 0, 0.24, 1);
+            text-align: center;
+            line-height: 0.9;
+        }
+
+        .ever-black-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ever {
+            display: block;
+            background: linear-gradient(to right, #fff 0%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            transform: translateX(-100px);
+            opacity: 0;
+            animation: slideIn 1s 0.5s forwards;
+        }
+
+        .black {
+            display: block;
+            background: linear-gradient(to right, #666 0%, #000 50%, #666 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+            transform: translateX(100px);
+            opacity: 0;
+            animation: slideIn 1s 0.7s forwards, shimmer 3s linear infinite;
+        }
+
+        @keyframes slideIn {
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% center; }
+            100% { background-position: -200% center; }
+        }
+
+        .subtitle {
+            margin-top: 2rem;
+            font-size: clamp(0.9rem, 2vw, 1.5rem);
+            font-weight: 200;
+            letter-spacing: 0.5rem;
+            opacity: 0;
+            color: #666;
+            text-transform: uppercase;
+            animation: fadeIn 2s 1.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Gallery Section */
+        .gallery-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding: 5rem 0;
+            scroll-snap-align: start;
+            overflow: hidden;
+        }
+
+        .gallery-container {
+            display: flex;
+            gap: 3rem;
+            padding: 0 calc((100vw - 60vw) / 2);
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            width: 100%;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE/Edge */
+        }
+
+        .gallery-container::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+
+        .gallery-item {
+            min-width: 60vw;
+            max-width: 900px;
+            aspect-ratio: 16 / 9;
+            scroll-snap-align: center;
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            background: transparent;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.02);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-nav {
+            position: absolute;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 10;
+        }
+
+        .gallery-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gallery-dot.active {
+            background: #fff;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .gallery-title {
+            position: absolute;
+            top: 5rem;
+            left: 5rem;
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 100;
+            letter-spacing: 0.2rem;
+            z-index: 5;
+        }
+
+        .gallery-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .gallery-arrow:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .gallery-arrow.left {
+            left: 2rem;
+        }
+
+        .gallery-arrow.right {
+            right: 2rem;
+        }
+
+        .gallery-arrow svg {
+            width: 24px;
+            height: 24px;
+            stroke: #fff;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        /* Info Section */
+        .info-section {
+            min-height: 100vh;
+            padding: 10rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            place-items: center;
+            scroll-snap-align: start;
+        }
+
+        .info-content {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease;
+        }
+
+        .info-content.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .info-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 2rem;
+            font-weight: 100;
+            letter-spacing: 0.2rem;
+        }
+
+        .info-text {
+            font-size: clamp(1rem, 2vw, 1.2rem);
+            line-height: 2;
+            color: #999;
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            font-weight: 300;
+        }
+
+        .address {
+            font-size: 0.9rem;
+            color: #666;
+            letter-spacing: 0.1rem;
+            text-transform: uppercase;
+            padding-top: 3rem;
+            border-top: 1px solid #222;
+        }
+
+        /* States when scrolled */
+        .scrolled .logo-section {
+            height: 80px;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .scrolled .logo-container {
+            width: fit-content;
+            min-width: 200px;
+            height: 50px;
+            padding: 0 20px;
+        }
+
+        .scrolled .logo {
+            background: transparent;
+        }
+
+        .scrolled .logo-img {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .scrolled .logo-text {
+            opacity: 1;
+            transform: scale(1);
+            white-space: nowrap;  /* 줄바꿈 방지 */
+        }
+
+        /* Noise texture overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 1000;
+            background:
+                    repeating-linear-gradient(
+                            45deg,
+                            transparent,
+                            transparent 2px,
+                            rgba(255, 255, 255, 0.03) 2px,
+                            rgba(255, 255, 255, 0.03) 4px
+                    );
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .logo-container {
+                width: 200px;
+                height: 200px;
+            }
+
+            .logo {
+                font-size: 5rem;
+            }
+
+            .logo-text {
+                font-size: 1.2rem;  /* 모바일에서 폰트 크기 줄임 */
+                letter-spacing: 0.1rem;  /* 자간도 줄임 */
+            }
+
+            .scrolled .logo-container {
+                width: 120px;  /* 모바일에서 작게 */
+            }
+
+            .ever-black-title {
+                font-size: 4rem;
+            }
+
+            .cursor, .cursor-dot {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+        }
+
+        /* Progressive reveal elements */
+        .reveal-text {
+            overflow: hidden;
+            position: relative;
+        }
+
+        .reveal-text span {
+            display: inline-block;
+            transform: translateY(100%);
+            transition: transform 1s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+
+        .reveal-text.revealed span {
+            transform: translateY(0);
+        }
+    </style>
 </head>
-    
-
-    <img class="logoSize oswald-text" src="MainLogo.png">
-    
-    <div class="icons">
-        <a href="https://www.youtube.com/" target="_blank">
-            <img src="youtube.png">
-        </a>
-        <a href="https://www.instagram.com/" target="_blank">
-            <img src="insta.png">
-        </a>
-        <a href="https://www.gmail.com" target="_blank">
-            <img src="mail.png">
-        </a>
-    </div>
-    <div>
-        <h4 class="mainTitle">EVER BLACK</h4>
-        <h4 class="mainTitle">ROOM 514, Jongha Innovation Center, 32, Bongwol-ro 38beon-gil, Nam-gu, Ulsan, Republic of Korea</h4>
-    </div>
-
-
-    
-
-
 <body>
-    
+<!-- Custom Cursor -->
+<div class="cursor"></div>
+<div class="cursor-dot"></div>
+
+<!-- Noise Texture -->
+<div class="noise"></div>
+
+<!-- Logo Section (Fixed) -->
+<div class="logo-section" id="logoSection">
+    <div class="logo-container">
+        <div class="logo" id="logo">
+            <!-- 여기에 로고 이미지 경로를 넣으세요 -->
+            <img src="MainLogo.png" alt="EVER BLACK" class="logo-img" />
+            <span class="logo-text">EVER BLACK</span>
+        </div>
+    </div>
+</div>
+
+<!-- Scroll Indicator -->
+<div class="scroll-indicator">
+    <div class="scroll-line"></div>
+</div>
+
+<!-- Main Content -->
+<div class="content">
+    <!-- EVER BLACK Reveal Section -->
+    <div class="ever-black-section">
+        <h1 class="ever-black-title" id="mainTitle">
+            <span class="ever">EVER</span>
+            <span class="black">BLACK</span>
+        </h1>
+        <p class="subtitle reveal-text">
+            <span>INNOVATION IN DARKNESS</span>
+        </p>
+    </div>
+
+    <!-- Gallery Section -->
+    <div class="gallery-section">
+        <h2 class="gallery-title">WORKS</h2>
+
+        <!-- Left Arrow -->
+        <div class="gallery-arrow left" id="galleryPrev">
+            <svg viewBox="0 0 24 24">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+        </div>
+
+        <!-- Right Arrow -->
+        <div class="gallery-arrow right" id="galleryNext">
+            <svg viewBox="0 0 24 24">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </div>
+
+        <div class="gallery-container" id="galleryContainer">
+            <div class="gallery-item">
+                <img src="Work1.jpg" alt="Work 1">
+            </div>
+            <div class="gallery-item">
+                <img src="Work2.png" alt="Work 2">
+            </div>
+            <div class="gallery-item">
+                <img src="Work3.jpg" alt="Work 3">
+            </div>
+            <div class="gallery-item">
+                <img src="Work4.jpg" alt="Work 4">
+            </div>
+        </div>
+        <div class="gallery-nav" id="galleryNav">
+            <div class="gallery-dot active" data-index="0"></div>
+            <div class="gallery-dot" data-index="1"></div>
+            <div class="gallery-dot" data-index="2"></div>
+            <div class="gallery-dot" data-index="3"></div>
+        </div>
+    </div>
+
+    <!-- Info Section -->
+    <div class="info-section">
+        <div class="info-content" id="infoContent">
+            <h2 class="info-title reveal-text">
+                <span>우리는 보이지 않는 곳에서 혁신을 만듭니다</span>
+            </h2>
+            <p class="info-text">
+                어둠 속에서 빛을 찾듯, 불가능 속에서 가능성을 발견합니다.<br>
+                EVER BLACK은 끊임없는 도전과 혁신으로 새로운 미래를 설계합니다.
+            </p>
+            <div class="address">
+                ROOM 514, JONGHA INNOVATION CENTER<br>
+                32, BONGWOL-RO 38BEON-GIL, NAM-GU<br>
+                ULSAN, REPUBLIC OF KOREA
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Custom Cursor
+    const cursor = document.querySelector('.cursor');
+    const cursorDot = document.querySelector('.cursor-dot');
+
+    document.addEventListener('mousemove', (e) => {
+        cursor.style.left = e.clientX + 'px';
+        cursor.style.top = e.clientY + 'px';
+        cursorDot.style.left = e.clientX + 'px';
+        cursorDot.style.top = e.clientY + 'px';
+    });
+
+    document.addEventListener('mousedown', () => {
+        cursor.style.transform = 'translate(-50%, -50%) scale(0.8)';
+    });
+
+    document.addEventListener('mouseup', () => {
+        cursor.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+
+    // Scroll Effects
+    let lastScroll = 0;
+    const logoSection = document.getElementById('logoSection');
+    const mainTitle = document.getElementById('mainTitle');
+    const infoContent = document.getElementById('infoContent');
+    const body = document.body;
+
+    function handleScroll() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+
+        // Logo transformation
+        if (scrollY > windowHeight * 0.5) {
+            body.classList.add('scrolled');
+        } else {
+            body.classList.remove('scrolled');
+        }
+
+        // Main title reveal
+        if (scrollY > windowHeight * 0.8) {
+            mainTitle.classList.add('visible');
+            document.querySelectorAll('.reveal-text').forEach(el => {
+                if (el.getBoundingClientRect().top < windowHeight * 0.8) {
+                    el.classList.add('revealed');
+                }
+            });
+        }
+
+        // Info content reveal
+        if (infoContent.getBoundingClientRect().top < windowHeight * 0.7) {
+            infoContent.classList.add('visible');
+        }
+
+        lastScroll = scrollY;
+    }
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Initial check
+
+    // Smooth scroll hint
+    setTimeout(() => {
+        if (window.scrollY === 0) {
+            window.scrollTo({
+                top: 100,
+                behavior: 'smooth'
+            });
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 500);
+        }
+    }, 3000);
+
+    // Logo morph on hover
+    const logoElement = document.querySelector('.logo-img');
+    if (logoElement) {
+        logoElement.addEventListener('mouseenter', () => {
+            if (!body.classList.contains('scrolled')) {
+                logoElement.style.filter = 'invert(1) drop-shadow(0 0 30px rgba(255,255,255,0.5))';
+            }
+        });
+
+        logoElement.addEventListener('mouseleave', () => {
+            if (!body.classList.contains('scrolled')) {
+                logoElement.style.filter = 'invert(1)';
+            }
+        });
+    }
+
+    // Gallery navigation
+    const galleryContainer = document.getElementById('galleryContainer');
+    const galleryDots = document.querySelectorAll('.gallery-dot');
+    const galleryPrev = document.getElementById('galleryPrev');
+    const galleryNext = document.getElementById('galleryNext');
+    let currentGalleryIndex = 0;
+    const totalItems = 4;
+
+    function getItemWidth() {
+        return galleryContainer.querySelector('.gallery-item').offsetWidth + 48; // width + gap
+    }
+
+    function scrollToIndex(index) {
+        const itemWidth = getItemWidth();
+        galleryContainer.scrollTo({
+            left: itemWidth * index,
+            behavior: 'smooth'
+        });
+        currentGalleryIndex = index;
+    }
+
+    // Update active dot based on scroll position
+    galleryContainer.addEventListener('scroll', () => {
+        const scrollLeft = galleryContainer.scrollLeft;
+        const itemWidth = getItemWidth();
+        currentGalleryIndex = Math.round(scrollLeft / itemWidth);
+
+        galleryDots.forEach((dot, index) => {
+            if (index === currentGalleryIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+    });
+
+    // Click dots to navigate
+    galleryDots.forEach(dot => {
+        dot.addEventListener('click', () => {
+            const index = parseInt(dot.dataset.index);
+            scrollToIndex(index);
+        });
+    });
+
+    // Arrow navigation
+    galleryPrev.addEventListener('click', () => {
+        const newIndex = Math.max(0, currentGalleryIndex - 1);
+        scrollToIndex(newIndex);
+    });
+
+    galleryNext.addEventListener('click', () => {
+        const newIndex = Math.min(totalItems - 1, currentGalleryIndex + 1);
+        scrollToIndex(newIndex);
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        const gallerySection = document.querySelector('.gallery-section');
+        const rect = gallerySection.getBoundingClientRect();
+        const isInView = rect.top < window.innerHeight && rect.bottom > 0;
+
+        if (isInView) {
+            if (e.key === 'ArrowLeft') {
+                galleryPrev.click();
+            } else if (e.key === 'ArrowRight') {
+                galleryNext.click();
+            }
+        }
+    });
+</script>
 </body>
 </html>
