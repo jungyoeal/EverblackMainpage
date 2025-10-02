@@ -238,21 +238,25 @@
             display: flex;
             align-items: center;
             position: relative;
-            padding: 5rem 0;
+            padding: 12rem 0;
             scroll-snap-align: start;
-            overflow: hidden;
+            overflow: visible;
+            perspective: 2000px;
         }
 
         .gallery-container {
             display: flex;
-            gap: 3rem;
-            padding: 0 calc((100vw - 60vw) / 2);
+            gap: 2rem;
+            padding: 0 calc(50vw - 250px);
             overflow-x: auto;
+            overflow-y: visible;
             scroll-snap-type: x mandatory;
             scroll-behavior: smooth;
             width: 100%;
             scrollbar-width: none; /* Firefox */
             -ms-overflow-style: none; /* IE/Edge */
+            transform-style: preserve-3d;
+            align-items: center;
         }
 
         .gallery-container::-webkit-scrollbar {
@@ -260,30 +264,72 @@
         }
 
         .gallery-item {
-            min-width: 60vw;
-            max-width: 900px;
-            aspect-ratio: 16 / 9;
+            min-width: 500px;
+            max-width: 500px;
             scroll-snap-align: center;
             position: relative;
             border-radius: 10px;
-            overflow: hidden;
+            overflow: visible;
             background: transparent;
-            transition: transform 0.3s ease;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: scale(0.7) translateY(30px);
+            opacity: 0.4;
+            flex-shrink: 0;
+            padding: 80px 0;
+            margin: -80px 0;
         }
 
-        .gallery-item:hover {
-            transform: scale(1.02);
+        .gallery-item.active {
+            transform: scale(1) translateY(0);
+            opacity: 1;
+            z-index: 2;
         }
 
         .gallery-item img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            transition: transform 0.5s ease;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 10px;
+            filter: grayscale(100%) brightness(0.4) drop-shadow(0 0 0 transparent);
         }
 
-        .gallery-item:hover img {
-            transform: scale(1.05);
+        .gallery-item.active img {
+            filter: grayscale(0%) brightness(1.1) drop-shadow(0 0 40px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 80px rgba(255, 255, 255, 0.2)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.5));
+        }
+
+        .gallery-item-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            border-radius: 10px;
+            overflow: visible;
+        }
+
+        .gallery-caption {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 0.3rem;
+            color: #fff;
+            opacity: 0;
+            transition: all 0.4s ease;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        .gallery-item.active .gallery-caption {
+            opacity: 0.7;
+        }
+
+        .gallery-item.active:hover .gallery-caption {
+            opacity: 1;
         }
 
         .gallery-nav {
@@ -489,6 +535,33 @@
             body {
                 cursor: auto;
             }
+
+            .gallery-section {
+                perspective: 1000px;
+            }
+
+            .gallery-container {
+                padding: 0 calc(50vw - 175px);
+                gap: 1.5rem;
+            }
+
+            .gallery-item {
+                min-width: 350px;
+                max-width: 350px;
+                height: 250px;
+                transform: scale(0.75) translateY(20px);
+                padding: 60px 0;
+                margin: -60px 0;
+            }
+
+            .gallery-item.active {
+                transform: scale(1) translateY(0);
+            }
+
+            .gallery-caption {
+                font-size: 1rem;
+                letter-spacing: 0.2rem;
+            }
         }
 
         /* Progressive reveal elements */
@@ -565,10 +638,13 @@
 
         <div class="gallery-container" id="galleryContainer">
             <div class="gallery-item">
-                <img src="Work1.jpg" alt="Work 1">
+                <a href="https://aienchant.com" target="_blank" class="gallery-item-link">
+                    <img src="Work1.png" alt="Work 1">
+                    <div class="gallery-caption">Enchant</div>
+                </a>
             </div>
             <div class="gallery-item">
-                <img src="Work2.png" alt="Work 2">
+                <img src="Work2.jpg" alt="Work 2">
             </div>
             <div class="gallery-item">
                 <img src="Work3.jpg" alt="Work 3">
@@ -697,6 +773,7 @@
 
     // Gallery navigation
     const galleryContainer = document.getElementById('galleryContainer');
+    const galleryItems = document.querySelectorAll('.gallery-item');
     const galleryDots = document.querySelectorAll('.gallery-dot');
     const galleryPrev = document.getElementById('galleryPrev');
     const galleryNext = document.getElementById('galleryNext');
@@ -716,12 +793,25 @@
         currentGalleryIndex = index;
     }
 
-    // Update active dot based on scroll position
-    galleryContainer.addEventListener('scroll', () => {
+    function updateActiveItem() {
         const scrollLeft = galleryContainer.scrollLeft;
         const itemWidth = getItemWidth();
-        currentGalleryIndex = Math.round(scrollLeft / itemWidth);
+        const newIndex = Math.round(scrollLeft / itemWidth);
 
+        if (newIndex !== currentGalleryIndex) {
+            currentGalleryIndex = newIndex;
+        }
+
+        // Update gallery items active state
+        galleryItems.forEach((item, index) => {
+            if (index === currentGalleryIndex) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+
+        // Update dots active state
         galleryDots.forEach((dot, index) => {
             if (index === currentGalleryIndex) {
                 dot.classList.add('active');
@@ -729,7 +819,15 @@
                 dot.classList.remove('active');
             }
         });
-    });
+    }
+
+    // Update active item on scroll
+    galleryContainer.addEventListener('scroll', updateActiveItem);
+
+    // Set initial active item
+    if (galleryItems.length > 0) {
+        galleryItems[0].classList.add('active');
+    }
 
     // Click dots to navigate
     galleryDots.forEach(dot => {
